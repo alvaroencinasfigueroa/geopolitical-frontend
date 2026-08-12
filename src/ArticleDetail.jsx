@@ -13,13 +13,13 @@ export default function ArticleDetail() {
   const [payError, setPayError] = useState("");
 
   useEffect(() => {
+    // Obtenemos el token de Admin o de Suscriptor (el que exista)
     const token =
       localStorage.getItem("adminToken") ||
       localStorage.getItem("subscriberToken");
+      
+    // Solo declaramos headers UNA vez
     const headers = token ? { Authorization: `Bearer ${token}` } : {};
-    const headers = subscriberToken
-      ? { Authorization: `Bearer ${subscriberToken}` }
-      : {};
 
     axios
       .get(`${API_URL}/articles/slug/${slug}`, { headers })
@@ -48,14 +48,14 @@ export default function ArticleDetail() {
         },
         {
           headers: { Authorization: `Bearer ${token}` },
-        },
+        }
       );
 
       setPaymentInfo(res.data);
     } catch (error) {
       setPayError(
         error.response?.data?.message ||
-          "Error al generar la dirección de pago.",
+          "Error al generar la dirección de pago."
       );
     }
   };
@@ -84,6 +84,9 @@ export default function ArticleDetail() {
         </Link>
       </div>
     );
+
+  // Si tu C# envía isLocked, lo usamos. Si no, revisamos si el texto está cortado.
+  const isLocked = article.isLocked || (article.content && article.content.includes("[Contenido bloqueado"));
 
   return (
     <div className="section container">
@@ -142,7 +145,7 @@ export default function ArticleDetail() {
           className="glass-card"
           style={{ padding: "40px", position: "relative" }}
         >
-          <div className={article.isLocked ? "paywall-fade" : ""}>
+          <div className={isLocked ? "paywall-fade" : ""}>
             <p
               style={{
                 color: "#d1d5db",
@@ -155,7 +158,7 @@ export default function ArticleDetail() {
             </p>
           </div>
 
-          {article.isLocked && (
+          {isLocked && (
             <div className="paywall-cta">
               <h3 className="paywall-cta-title">CONTINÚA LEYENDO</h3>
               <p className="paywall-cta-text">
