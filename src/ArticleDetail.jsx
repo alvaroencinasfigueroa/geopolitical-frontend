@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams, Link, useNavigate } from "react-router-dom";
+import ShareButton from "./ShareButton";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5253/api";
 
@@ -126,7 +127,7 @@ export default function ArticleDetail() {
           style={{
             borderBottom: "1px solid var(--glass-border)",
             paddingBottom: "20px",
-            marginBottom: "30px",
+            marginBottom: "10px",
           }}
         >
           <span>
@@ -141,9 +142,11 @@ export default function ArticleDetail() {
           <span>📂 {article.category}</span>
         </div>
 
+        <ShareButton title={article.title} url={window.location.href} />
+
         <div
           className="glass-card"
-          style={{ padding: "40px", position: "relative" }}
+          style={{ padding: "40px", marginTop: "20px", position: "relative" }}
         >
           <div className={isLocked ? "paywall-fade" : ""}>
             <p
