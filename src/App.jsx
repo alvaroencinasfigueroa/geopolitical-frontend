@@ -1,12 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-  Link,
-  Outlet,
-} from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link, Outlet } from "react-router-dom";
 import {
   BarChart,
   Bar,
@@ -22,6 +16,7 @@ import ArticleDetail from "./ArticleDetail";
 import Login from "./Login";
 import AdminPanel from "./AdminPanel";
 import SpinningGlobe from "./SpinningGlobe";
+import EstadisticasPage from "./EstadisticasPage";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5253/api";
 
@@ -46,7 +41,7 @@ function Layout() {
               Análisis
             </Link>
             <Link
-              to="/"
+              to="/estadisticas"
               className="nav-link"
               style={{ textDecoration: "none", color: "inherit" }}
             >
@@ -224,6 +219,7 @@ export default function App() {
           <Route path="admin" element={<AdminPanel />} />
           <Route path="articulo/:slug" element={<ArticleDetail />} />
           <Route path="login" element={<Login />} />
+          <Route path="estadisticas" element={<EstadisticasPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
