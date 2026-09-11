@@ -79,18 +79,40 @@ const DRONES = {
   }
 };
 
+// Fibra óptica — datos basados en CRU International, YOFC reports, Corning 10-K
+// Producción medida en millones de kilómetros de fibra (fiber-km) anuales.
+const FIBER = {
+  production: {
+    title: 'Producción Mundial de Fibra Óptica',
+    unit: 'Millones de kilómetros de fibra óptica producidos (2024)',
+    summary: 'China produce <strong>~65–70% de la fibra óptica del mundo</strong>. YOFC, Hengtong, Futong y ZTT fabrican juntas más fibra que Corning, Prysmian y Sumitomo combinadas. La fibra china es la columna vertebral de internet global.',
+    items: [
+      { name: 'China 🇨🇳', value: 410.0, china: true },
+      { name: 'EE.UU. 🇺🇸', value: 55.0, china: false },
+      { name: 'Japón 🇯🇵', value: 38.0, china: false },
+      { name: 'India 🇮🇳', value: 22.0, china: false },
+      { name: 'Corea del Sur 🇰🇷', value: 12.0, china: false },
+      { name: 'Italia 🇮🇹', value: 8.5, china: false },
+      { name: 'Francia 🇫🇷', value: 6.0, china: false },
+      { name: 'Alemania 🇩🇪', value: 5.5, china: false }
+    ]
+  }
+};
+
 const DATASETS = {
   steel: STEEL,
   ships: SHIPS,
   cars: CARS,
-  drones: DRONES
+  drones: DRONES,
+  fiber: FIBER
 };
 
 const TABS = [
   { id: 'steel', label: '🏭 Acero', metric: 'production' },
   { id: 'ships', label: '🚢 Barcos', metric: 'tonnage' },
   { id: 'cars', label: '🚗 Autos', metric: 'total' },
-  { id: 'drones', label: '🛸 Drones', metric: 'civilian' }
+  { id: 'drones', label: '🛸 Drones', metric: 'civilian' },
+  { id: 'fiber', label: '🔌 Fibra óptica', metric: 'production' }
 ];
 
 // ==========================================
@@ -131,8 +153,8 @@ export default function EstadisticasPage() {
           <span className="text-cyan">MUNDO</span>
         </h2>
         <p className="hero-subtitle">
-          La dominación industrial china medida en 4 sectores clave:
-          acero, construcción naval, automotriz y drones.
+          La dominación industrial china medida en 5 sectores clave:
+          acero, construcción naval, automotriz, drones y fibra óptica.
         </p>
       </header>
 
@@ -233,7 +255,7 @@ export default function EstadisticasPage() {
         </div>
 
         <p style={{ textAlign: 'center', color: '#6b7280', fontSize: '0.8rem', marginTop: '20px' }}>
-          Fuentes: UNCTAD, World Steel Association, OICA, Drone Industry Insights, OECD.
+          Fuentes: UNCTAD, World Steel Association, OICA, Drone Industry Insights, CRU International, YOFC, Corning 10-K, OECD.
           Cifras redondeadas con fines comparativos.
         </p>
       </section>
