@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, Cell
+  ResponsiveContainer, Cell, LabelList
 } from 'recharts';
 
 // ==========================================
@@ -11,6 +11,7 @@ const STEEL = {
   production: {
     title: 'Producción Mundial de Acero',
     unit: 'Millones de toneladas de acero crudo producidas (2024)',
+    shortUnit: 'Mt',
     summary: 'China produce <strong>más acero que el resto del mundo junto</strong>. Sus 1.000 millones de toneladas representan más del <strong>50%</strong> del total global.',
     items: [
       { name: 'China 🇨🇳', value: 1004.0, china: true },
@@ -31,6 +32,7 @@ const SHIPS = {
   tonnage: {
     title: 'Producción Naval Mundial',
     unit: 'Millones de GT (tonelaje bruto) completados — 2025',
+    shortUnit: 'M GT',
     summary: 'China construye <strong>más de la mitad</strong> del tonelaje mundial de barcos. Sola, supera la suma de todos los demás países.',
     items: [
       { name: 'China 🇨🇳', value: 53.2, china: true },
@@ -47,6 +49,7 @@ const CARS = {
   total: {
     title: 'Producción Mundial de Vehículos',
     unit: 'Millones de vehículos producidos (2024)',
+    shortUnit: 'M',
     summary: 'China produce <strong>3× más vehículos que EE.UU.</strong> — y <strong>más que los siguientes 4 países juntos</strong>. Fabrica 1 de cada 3 coches del planeta.',
     items: [
       { name: 'China 🇨🇳', value: 31.28, china: true },
@@ -65,6 +68,7 @@ const DRONES = {
   civilian: {
     title: 'Producción Mundial de Drones',
     unit: 'Millones de drones civiles producidos (2024)',
+    shortUnit: 'M',
     summary: 'China fabrica <strong>~75–80% de los drones comerciales del mundo</strong>. Solo Shenzhen produce más que el resto del planeta junto.',
     items: [
       { name: 'China 🇨🇳', value: 24.5, china: true },
@@ -84,7 +88,8 @@ const DRONES = {
 const FIBER = {
   production: {
     title: 'Producción Mundial de Fibra Óptica',
-    unit: 'Millones de kilómetros de fibra óptica producidos (2024)',
+    unit: 'Millones de kilometers de fibra óptica producidos (2024)',
+    shortUnit: 'M km',
     summary: 'China produce <strong>~65–70% de la fibra óptica del mundo</strong>. YOFC, Hengtong, Futong y ZTT fabrican juntas más fibra que Corning, Prysmian y Sumitomo combinadas. La fibra china es la columna vertebral de internet global.',
     items: [
       { name: 'China 🇨🇳', value: 410.0, china: true },
@@ -116,10 +121,76 @@ const TABS = [
 ];
 
 // ==========================================
+// FORMATO DE NÚMEROS (punto de miles + decimal coma)
+// ==========================================
+function formatNumber(value, maxDecimals = 2) {
+  const num = Number(value);
+  // Si el número es entero, no mostrar decimales
+  const decimals = Number.isInteger(num) ? 0 : maxDecimals;
+  const fixed = num.toFixed(decimals);
+  const [intPart, decPart] = fixed.split('.');
+  const withThousands = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return decPart ? `${withThousands},${decPart}` : withThousands;
+}
+
+// ==========================================
+// TOOLTIP PERSONALIZADO
+// ==========================================
+function CustomTooltip({ active, payload, shortUnit, total }) {
+  if (!active || !payload || !payload.length) return null;
+
+  const item = payload[0].payload;
+  const share = total > 0 ? ((item.value / total) * 100).toFixed(1) : '0';
+  const isChina = item.china;
+
+  return (
+    <div style={{
+      background: 'rgba(10, 10, 15, 0.97)',
+      border: `1px solid ${isChina ? '#FF003C' : '#00F0FF'}`,
+      borderRadius: '10px',
+      padding: '12px 16px',
+      boxShadow: `0 0 24px ${isChina ? 'rgba(255,0,60,0.35)' : 'rgba(0,240,255,0.25)'}`,
+      minWidth: '170px'
+    }}>
+      <div style={{
+        fontFamily: 'Orbitron, sans-serif',
+        fontSize: '0.85rem',
+        fontWeight: 700,
+        color: isChina ? '#FF003C' : '#00F0FF',
+        marginBottom: '8px',
+        borderBottom: '1px solid rgba(255,255,255,0.12)',
+        paddingBottom: '6px'
+      }}>
+        {item.name}
+      </div>
+
+      <div style={{
+        fontFamily: 'Orbitron, sans-serif',
+        fontSize: '1.9rem',
+        fontWeight: 800,
+        color: '#fff',
+        lineHeight: 1.1,
+        textShadow: isChina ? '0 0 14px rgba(255,0,60,0.7)' : '0 0 14px rgba(0,240,255,0.5)'
+      }}>
+        {formatNumber(item.value, 2)}
+        <span style={{ fontSize: '0.85rem', color: '#9ca3af', marginLeft: '4px', fontWeight: 600 }}>
+          {shortUnit}
+        </span>
+      </div>
+
+      <div style={{ marginTop: '8px', fontSize: '0.75rem', color: '#9ca3af', fontFamily: 'Inter, sans-serif' }}>
+        <span style={{ color: '#fff', fontWeight: 600 }}>{share}%</span> del total de la muestra
+      </div>
+    </div>
+  );
+}
+
+// ==========================================
 // COMPONENTE PRINCIPAL
 // ==========================================
 export default function EstadisticasPage() {
   const [active, setActive] = useState('steel');
+  const [selected, setSelected] = useState(null); // índice de la barra tocada/clicada
   const currentTab = TABS.find(t => t.id === active);
   const dataset = DATASETS[active][currentTab.metric];
 
@@ -131,16 +202,17 @@ export default function EstadisticasPage() {
   const share = Math.round((chinaValue / total) * 100);
   const ratio = (chinaValue / secondValue).toFixed(1);
 
-  const tooltipStyle = {
-    contentStyle: {
-      backgroundColor: '#0F0F14',
-      border: '1px solid #FF003C',
-      borderRadius: '8px',
-      color: '#fff',
-      fontFamily: 'Inter, sans-serif'
-    },
-    labelStyle: { color: '#00F0FF' },
-    formatter: (v) => v.toLocaleString('es-ES')
+  // Etiquetas de valor sobre las barras (visibles siempre, más grandes al hover)
+  const labelData = useMemo(() => dataset.items.map(i => ({
+    ...i,
+    label: formatNumber(i.value, 2)
+  })), [dataset]);
+
+  const selectedItem = selected !== null ? dataset.items[selected] : null;
+
+  const axisStyle = {
+    stroke: '#888',
+    tick: { fill: '#888', fontSize: 11 }
   };
 
   return (
@@ -195,27 +267,126 @@ export default function EstadisticasPage() {
           <p style={{ color: '#9ca3af', fontSize: '0.9rem', textAlign: 'center', marginBottom: '20px' }}>
             {dataset.unit}
           </p>
+          <p style={{
+            color: '#6b7280',
+            fontSize: '0.72rem',
+            textAlign: 'center',
+            marginBottom: '12px',
+            fontFamily: 'Inter, sans-serif',
+            letterSpacing: '0.3px'
+          }}>
+            👆 Pasa el cursor o toca una barra para ver el detalle
+          </p>
 
-          <ResponsiveContainer width="100%" height={450}>
-            <BarChart data={dataset.items} margin={{ top: 20, right: 20, left: 0, bottom: 60 }}>
+          <ResponsiveContainer width="100%" height={470}>
+            <BarChart
+              data={labelData}
+              margin={{ top: 46, right: 20, left: 0, bottom: 60 }}
+              barCategoryGap="18%"
+            >
               <CartesianGrid strokeDasharray="3 3" stroke="#333" />
               <XAxis
                 dataKey="name"
-                stroke="#888"
-                tick={{ fill: '#888', fontSize: 11 }}
+                {...axisStyle}
                 angle={-25}
                 textAnchor="end"
                 interval={0}
               />
-              <YAxis stroke="#888" tick={{ fill: '#888', fontSize: 11 }} />
-              <Tooltip {...tooltipStyle} />
-              <Bar dataKey="value" radius={[6, 6, 0, 0]} animationDuration={1000}>
-                {dataset.items.map((entry, i) => (
-                  <Cell key={i} fill={entry.china ? '#FF003C' : '#475569'} />
+              <YAxis {...axisStyle} />
+              <Tooltip
+                cursor={{ fill: 'rgba(255, 255, 255, 0.06)' }}
+                content={<CustomTooltip shortUnit={dataset.shortUnit} total={total} />}
+                animationDuration={150}
+              />              <Bar
+                dataKey="value"
+                radius={[6, 6, 0, 0]}
+                animationDuration={1000}
+                maxBarSize={70}
+                onClick={(data, index) => setSelected(index === selected ? null : index)}
+                activeBar={{
+                  fill: '#FF003C',
+                  style: { filter: 'drop-shadow(0 0 12px rgba(255,0,60,0.8))' }
+                }}
+              >
+                {labelData.map((entry, i) => (
+                  <Cell
+                    key={i}
+                    fill={entry.china ? '#FF003C' : '#475569'}
+                  />
                 ))}
+                <LabelList
+                  dataKey="label"
+                  position="top"
+                  offset={12}
+                  content={({ x, y, width, index }) => {
+                    const entry = labelData[index];
+                    if (!entry) return null;
+                    return (
+                      <text
+                        x={x + width / 2}
+                        y={y - 10}
+                        textAnchor="middle"
+                        fill={entry.china ? '#FF5C7A' : '#E5E7EB'}
+                        fontSize={entry.china ? 18 : 13}
+                        fontWeight={800}
+                        fontFamily="Orbitron, sans-serif"
+                        style={{ textShadow: '0 0 8px rgba(0,0,0,0.95)' }}
+                      >
+                        {entry.label}
+                      </text>
+                    );
+                  }}
+                />
               </Bar>
             </BarChart>
           </ResponsiveContainer>
+
+          {/* PANEL DE DETALLE (click / toque en una barra) */}
+          {selectedItem && (
+            <div style={{
+              marginTop: '20px',
+              padding: '18px 20px',
+              background: selectedItem.china ? 'rgba(255, 0, 60, 0.12)' : 'rgba(0, 240, 255, 0.07)',
+              border: `1px solid ${selectedItem.china ? '#FF003C' : '#00F0FF'}`,
+              borderRadius: '10px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: '16px'
+            }}>
+              <div>
+                <div style={{
+                  fontFamily: 'Orbitron, sans-serif',
+                  fontSize: '1rem',
+                  fontWeight: 700,
+                  color: selectedItem.china ? '#FF5C7A' : '#00F0FF',
+                  marginBottom: '4px'
+                }}>
+                  {selectedItem.name}
+                </div>
+                <div style={{ fontSize: '0.78rem', color: '#9ca3af', fontFamily: 'Inter, sans-serif' }}>
+                  {((selectedItem.value / total) * 100).toFixed(1)}% del total de la muestra
+                  {selectedItem.china && ' · líder mundial'}
+                </div>
+              </div>
+              <div style={{
+                fontFamily: 'Orbitron, sans-serif',
+                fontSize: '2.2rem',
+                fontWeight: 800,
+                color: '#fff',
+                lineHeight: 1,
+                textShadow: selectedItem.china
+                  ? '0 0 16px rgba(255,0,60,0.7)'
+                  : '0 0 16px rgba(0,240,255,0.5)'
+              }}>
+                {formatNumber(selectedItem.value, 2)}
+                <span style={{ fontSize: '0.9rem', color: '#9ca3af', marginLeft: '5px', fontWeight: 600 }}>
+                  {dataset.shortUnit}
+                </span>
+              </div>
+            </div>
+          )}
 
           {/* KPIs */}
           <div style={{
@@ -230,10 +401,10 @@ export default function EstadisticasPage() {
             </div>
             <div style={kpiStyle}>
               <div style={kpiValueStyle}>{ratio}×</div>
-              <div style={kpiLabelStyle}>vs. #2 ({secondValue.toLocaleString('es-ES')})</div>
+              <div style={kpiLabelStyle}>vs. #2 ({formatNumber(secondValue, 1)})</div>
             </div>
             <div style={kpiStyle}>
-              <div style={kpiValueStyle}>{chinaValue.toLocaleString('es-ES')}</div>
+              <div style={kpiValueStyle}>{formatNumber(chinaValue, 1)}</div>
               <div style={kpiLabelStyle}>solo China</div>
             </div>
           </div>
