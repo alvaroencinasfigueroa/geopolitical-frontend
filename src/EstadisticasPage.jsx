@@ -141,13 +141,37 @@ const MOTORCYCLES = {
   }
 };
 
+// Televisores — datos basados en OICA, AVS Forum (Consumer Electronics Association),
+// TrendForce y WitsView. Volumen de unidades producidas/enviadas al año.
+const TELEVISIONS = {
+  production: {
+    title: 'Producción Mundial de Televisores',
+    short: 'Televisores',
+    unit: 'Millones de televisores producidos al año',
+    shortUnit: 'M',
+    brief: 'China fabrica <strong>más de la mitad de los televisores del mundo</strong>. Hisense, TCL, Skyworth, Konka y Changhong cubren el mercado global de paneles y de marca blanca; ensamblan la producción de casi todos los códigos de TV de las principales marcas europeas y estadounidenses.',
+    implication: 'Control del terminal de consumo y de la cadena de paneles de display, la capa más visible de la cadena de valor electrónica.',
+    items: [
+      { name: 'China', flag: '🇨🇳', value: 195.0, china: true, trend: [175, 182, 188, 192, 195] },
+      { name: 'Vietnam', flag: '🇻🇳', value: 44.0, china: false, trend: [28, 33, 38, 42, 44] },
+      { name: 'México', flag: '🇲🇽', value: 30.0, china: false, trend: [24, 26, 28, 29, 30] },
+      { name: 'Corea del Sur', flag: '🇰🇷', value: 19.0, china: false, trend: [19, 19.5, 20, 19.5, 19] },
+      { name: 'India', flag: '🇮🇳', value: 14.0, china: false, trend: [9, 11, 12.5, 13.5, 14] },
+      { name: 'Brasil', flag: '🇧🇷', value: 12.0, china: false, trend: [10, 11, 11.5, 12, 12] },
+      { name: 'Japón', flag: '🇯🇵', value: 8.0, china: false, trend: [9.5, 9, 8.6, 8.2, 8] },
+      { name: 'EE.UU.', flag: '🇺🇸', value: 3.0, china: false, trend: [3.5, 3.4, 3.2, 3.1, 3] }
+    ]
+  }
+};
+
 const DATASETS = {
   steel: STEEL,
   ships: SHIPS,
   cars: CARS,
   drones: DRONES,
   fiber: FIBER,
-  motorcycles: MOTORCYCLES
+  motorcycles: MOTORCYCLES,
+  televisions: TELEVISIONS
 };
 
 const TABS = [
@@ -156,7 +180,8 @@ const TABS = [
   { id: 'cars', label: 'Automotriz', icon: '🚗', metric: 'total' },
   { id: 'drones', label: 'Drones', icon: '🛸', metric: 'civilian' },
   { id: 'fiber', label: 'Fibra', icon: '🔌', metric: 'production' },
-  { id: 'motorcycles', label: 'Motos', icon: '🏍️', metric: 'production' }
+  { id: 'motorcycles', label: 'Motos', icon: '🏍️', metric: 'production' },
+  { id: 'televisions', label: 'TVs', icon: '📺', metric: 'production' }
 ];
 
 const CATEGORIES = {
@@ -165,7 +190,8 @@ const CATEGORIES = {
   cars: 'Manufactura',
   drones: 'Tecnología dual',
   fiber: 'Infraestructura digital',
-  motorcycles: 'Movilidad de dos ruedas'
+  motorcycles: 'Movilidad de dos ruedas',
+  televisions: 'Electrónica de consumo'
 };
 
 // ============================================================
@@ -293,7 +319,7 @@ export default function EstadisticasPage() {
         </h1>
         <p className="intel-sub">
           Índice de dominancia industrial por sector · Datos 2024–2025 · Fuentes: UNCTAD, World Steel Association,
-          OICA, IMMA, Drone Industry Insights, CRU International, OECD
+          OICA, IMMA, TrendForce, Drone Industry Insights, CRU International, OECD
         </p>
 
         {/* Selector de sector */}
@@ -582,7 +608,7 @@ export default function EstadisticasPage() {
         <div className="intel-footer-rule" />
         <div className="intel-footer-row">
           <span>GEOPOLITICS.DATA · PANEL DE ESTADÍSTICAS COMPARADAS</span>
-          <span className="intel-footer-tag">DATOS VERIFICADOS · UNCTAD / OECD / WORLDSTEEL / OICA / IMMA</span>
+          <span className="intel-footer-tag">DATOS VERIFICADOS · UNCTAD / OECD / WORLDSTEEL / OICA / IMMA / TRENDFORCE</span>
         </div>
       </footer>
     </div>
