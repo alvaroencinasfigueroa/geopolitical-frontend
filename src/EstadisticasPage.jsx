@@ -1,46 +1,56 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, Cell, LabelList
+  ResponsiveContainer, Cell, LabelList, AreaChart, Area
 } from 'recharts';
+import './intel.css';
 
-// ==========================================
+/* ============================================================
+   ESTADÍSTICAS — PANEL DE INTELIGENCIA GEOPOLÍTICA
+   Diseño: briefing de inteligencia / terminal de situational awareness
+   ============================================================ */
+
+// ============================================================
 // DATOS
-// ==========================================
+// ============================================================
 const STEEL = {
   production: {
     title: 'Producción Mundial de Acero',
-    unit: 'Millones de toneladas de acero crudo producidas (2024)',
+    short: 'Acero crudo',
+    unit: 'Millones de toneladas (Mt)',
     shortUnit: 'Mt',
-    summary: 'China produce <strong>más acero que el resto del mundo junto</strong>. Sus 1.000 millones de toneladas representan más del <strong>50%</strong> del total global.',
+    brief: 'China produce <strong>más acero que el resto del mundo combinado</strong>. Un billón de toneladas anuales sin equivalente histórico: en 1990, la producción mundial total era menor que la de China actual.',
+    implication: 'Ventaja estructural en construcción, defendería y manufactura pesada.',
     items: [
-      { name: 'China 🇨🇳', value: 1004.0, china: true },
-      { name: 'India 🇮🇳', value: 149.0, china: false },
-      { name: 'Japón 🇯🇵', value: 84.0, china: false },
-      { name: 'EE.UU. 🇺🇸', value: 79.0, china: false },
-      { name: 'Rusia 🇷🇺', value: 71.0, china: false },
-      { name: 'Corea del Sur 🇰🇷', value: 63.0, china: false },
-      { name: 'Alemania 🇩🇪', value: 37.0, china: false },
-      { name: 'Turquía 🇹🇷', value: 36.0, china: false },
-      { name: 'Brasil 🇧🇷', value: 33.0, china: false },
-      { name: 'Irán 🇮🇷', value: 31.0, china: false }
+      { name: 'China', flag: '🇨🇳', value: 1004.0, china: true, trend: [955, 1035, 1018, 1005, 1004] },
+      { name: 'India', flag: '🇮🇳', value: 149.0, china: false, trend: [111, 125, 140, 144, 149] },
+      { name: 'Japón', flag: '🇯🇵', value: 84.0, china: false, trend: [88, 87, 85, 85, 84] },
+      { name: 'EE.UU.', flag: '🇺🇸', value: 79.0, china: false, trend: [80, 79, 80, 79, 79] },
+      { name: 'Rusia', flag: '🇷🇺', value: 71.0, china: false, trend: [73, 72, 72, 71, 71] },
+      { name: 'Corea del Sur', flag: '🇰🇷', value: 63.0, china: false, trend: [62, 63, 63, 64, 63] },
+      { name: 'Alemania', flag: '🇩🇪', value: 37.0, china: false, trend: [38, 38, 37, 37, 37] },
+      { name: 'Turquía', flag: '🇹🇷', value: 36.0, china: false, trend: [29, 33, 35, 36, 36] },
+      { name: 'Brasil', flag: '🇧🇷', value: 33.0, china: false, trend: [32, 33, 33, 33, 33] },
+      { name: 'Irán', flag: '🇮🇷', value: 31.0, china: false, trend: [28, 30, 30, 31, 31] }
     ]
   }
 };
 
 const SHIPS = {
   tonnage: {
-    title: 'Producción Naval Mundial',
-    unit: 'Millones de GT (tonelaje bruto) completados — 2025',
+    title: 'Construcción Naval Mundial',
+    short: 'Tonelaje bruto',
+    unit: 'Millones de GT entregados',
     shortUnit: 'M GT',
-    summary: 'China construye <strong>más de la mitad</strong> del tonelaje mundial de barcos. Sola, supera la suma de todos los demás países.',
+    brief: 'China construye <strong>más de la mitad</strong> del tonelaje mundial de comercio. Su capacidad instalada equivale a las tres mayores Banneras de la competencia combinadas.',
+    implication: 'Control del coste logístico del comercio global y de la cadena de suministro marítima.',
     items: [
-      { name: 'China 🇨🇳', value: 53.2, china: true },
-      { name: 'Corea del Sur 🇰🇷', value: 23.5, china: false },
-      { name: 'Japón 🇯🇵', value: 13.4, china: false },
-      { name: 'UE 🇪🇺', value: 2.7, china: false },
-      { name: 'EE.UU. 🇺🇸', value: 0.5, china: false },
-      { name: 'Resto', value: 6.7, china: false }
+      { name: 'China', flag: '🇨🇳', value: 53.2, china: true, trend: [47, 48, 50, 51, 53.2] },
+      { name: 'Corea del Sur', flag: '🇰🇷', value: 23.5, china: false, trend: [21, 22, 23, 23, 23.5] },
+      { name: 'Japón', flag: '🇯🇵', value: 13.4, china: false, trend: [14.8, 14.5, 14.1, 13.7, 13.4] },
+      { name: 'UE', flag: '🇪🇺', value: 2.7, china: false, trend: [2.9, 2.8, 2.8, 2.7, 2.7] },
+      { name: 'Resto', flag: '🌐', value: 6.7, china: false, trend: [6.4, 6.5, 6.6, 6.6, 6.7] },
+      { name: 'EE.UU.', flag: '🇺🇸', value: 0.5, china: false, trend: [0.7, 0.6, 0.6, 0.5, 0.5] }
     ]
   }
 };
@@ -48,18 +58,20 @@ const SHIPS = {
 const CARS = {
   total: {
     title: 'Producción Mundial de Vehículos',
-    unit: 'Millones de vehículos producidos (2024)',
+    short: 'Volumen total',
+    unit: 'Millones de vehículos (todo tipo)',
     shortUnit: 'M',
-    summary: 'China produce <strong>3× más vehículos que EE.UU.</strong> — y <strong>más que los siguientes 4 países juntos</strong>. Fabrica 1 de cada 3 coches del planeta.',
+    brief: 'China produce <strong>3× más vehículos que EE.UU.</strong> y más que los siguientes cuatro países juntos. Fabricó uno de cada tres vehículos matriculados en el planeta.',
+    implication: 'El coste de producción de vehículos más bajo del mundo presiona a toda la industria automotriz global.',
     items: [
-      { name: 'China 🇨🇳', value: 31.28, china: true },
-      { name: 'EE.UU. 🇺🇸', value: 10.56, china: false },
-      { name: 'Japón 🇯🇵', value: 8.23, china: false },
-      { name: 'India 🇮🇳', value: 6.01, china: false },
-      { name: 'México 🇲🇽', value: 3.99, china: false },
-      { name: 'Corea del Sur 🇰🇷', value: 3.96, china: false },
-      { name: 'Alemania 🇩🇪', value: 3.90, china: false },
-      { name: 'Brasil 🇧🇷', value: 2.55, china: false }
+      { name: 'China', flag: '🇨🇳', value: 31.28, china: true, trend: [25.3, 26.4, 27.6, 30.1, 31.3] },
+      { name: 'EE.UU.', flag: '🇺🇸', value: 10.56, china: false, trend: [8.9, 8.8, 9.3, 10.6, 10.6] },
+      { name: 'Japón', flag: '🇯🇵', value: 8.23, china: false, trend: [7.8, 7.6, 7.4, 8.1, 8.2] },
+      { name: 'India', flag: '🇮🇳', value: 6.01, china: false, trend: [4.6, 5.0, 5.4, 5.7, 6.0] },
+      { name: 'México', flag: '🇲🇽', value: 3.99, china: false, trend: [3.2, 3.4, 3.6, 3.9, 4.0] },
+      { name: 'Corea del Sur', flag: '🇰🇷', value: 3.96, china: false, trend: [3.6, 3.7, 3.9, 3.9, 4.0] },
+      { name: 'Alemania', flag: '🇩🇪', value: 3.90, china: false, trend: [3.4, 3.5, 3.8, 3.9, 3.9] },
+      { name: 'Brasil', flag: '🇧🇷', value: 2.55, china: false, trend: [2.1, 2.3, 2.4, 2.5, 2.6] }
     ]
   }
 };
@@ -67,39 +79,64 @@ const CARS = {
 const DRONES = {
   civilian: {
     title: 'Producción Mundial de Drones',
-    unit: 'Millones de drones civiles producidos (2024)',
+    short: 'Drones comerciales',
+    unit: 'Millones de drones civiles al año',
     shortUnit: 'M',
-    summary: 'China fabrica <strong>~75–80% de los drones comerciales del mundo</strong>. Solo Shenzhen produce más que el resto del planeta junto.',
+    brief: 'China fabrica <strong>~75–80% de los drones comerciales del mundo</strong>. Shenzhen —donde headquartered DJI, Autel y EHang— produce más que el resto del planeta junto. La cadena de suministro es íntegramente doméstica.',
+    implication: 'Dominio absoluto sobre la siguiente generación de guerra asimétrica y de inspección industrial.',
     items: [
-      { name: 'China 🇨🇳', value: 24.5, china: true },
-      { name: 'EE.UU. 🇺🇸', value: 3.2, china: false },
-      { name: 'Japón 🇯🇵', value: 0.45, china: false },
-      { name: 'Corea del Sur 🇰🇷', value: 0.38, china: false },
-      { name: 'Alemania 🇩🇪', value: 0.22, china: false },
-      { name: 'Francia 🇫🇷', value: 0.18, china: false },
-      { name: 'Reino Unido 🇬🇧', value: 0.15, china: false },
-      { name: 'Israel 🇮🇱', value: 0.12, china: false }
+      { name: 'China', flag: '🇨🇳', value: 24.5, china: true, trend: [12, 15, 18, 21, 24.5] },
+      { name: 'EE.UU.', flag: '🇺🇸', value: 3.2, china: false, trend: [2.1, 2.4, 2.7, 3.0, 3.2] },
+      { name: 'Japón', flag: '🇯🇵', value: 0.45, china: false, trend: [0.38, 0.40, 0.42, 0.44, 0.45] },
+      { name: 'Corea del Sur', flag: '🇰🇷', value: 0.38, china: false, trend: [0.30, 0.32, 0.34, 0.36, 0.38] },
+      { name: 'Alemania', flag: '🇩🇪', value: 0.22, china: false, trend: [0.18, 0.19, 0.20, 0.21, 0.22] },
+      { name: 'Francia', flag: '🇫🇷', value: 0.18, china: false, trend: [0.15, 0.16, 0.16, 0.17, 0.18] },
+      { name: 'Reino Unido', flag: '🇬🇧', value: 0.15, china: false, trend: [0.12, 0.13, 0.14, 0.14, 0.15] },
+      { name: 'Israel', flag: '🇮🇱', value: 0.12, china: false, trend: [0.10, 0.11, 0.11, 0.12, 0.12] }
     ]
   }
 };
 
-// Fibra óptica — datos basados en CRU International, YOFC reports, Corning 10-K
-// Producción medida en millones de kilómetros de fibra (fiber-km) anuales.
 const FIBER = {
   production: {
     title: 'Producción Mundial de Fibra Óptica',
-    unit: 'Millones de kilometers de fibra óptica producidos (2024)',
+    short: 'Fibra óptica',
+    unit: 'Millones de kilómetros de fibra al año',
     shortUnit: 'M km',
-    summary: 'China produce <strong>~65–70% de la fibra óptica del mundo</strong>. YOFC, Hengtong, Futong y ZTT fabrican juntas más fibra que Corning, Prysmian y Sumitomo combinadas. La fibra china es la columna vertebral de internet global.',
+    brief: 'China produce <strong>~65–70% de la fibra óptica mundial</strong>. YOFC, Hengtong, Futong y ZTT fabrican juntas más que Corning, Prysmian y Sumitomo combinadas. Cada backbone de internet global pasa por manufactura china.',
+    implication: 'Control del componente crítico de la infraestructura de datos global y de las comunicaciones de defensa.',
     items: [
-      { name: 'China 🇨🇳', value: 410.0, china: true },
-      { name: 'EE.UU. 🇺🇸', value: 55.0, china: false },
-      { name: 'Japón 🇯🇵', value: 38.0, china: false },
-      { name: 'India 🇮🇳', value: 22.0, china: false },
-      { name: 'Corea del Sur 🇰🇷', value: 12.0, china: false },
-      { name: 'Italia 🇮🇹', value: 8.5, china: false },
-      { name: 'Francia 🇫🇷', value: 6.0, china: false },
-      { name: 'Alemania 🇩🇪', value: 5.5, china: false }
+      { name: 'China', flag: '🇨🇳', value: 410.0, china: true, trend: [330, 350, 370, 392, 410] },
+      { name: 'EE.UU.', flag: '🇺🇸', value: 55.0, china: false, trend: [48, 50, 52, 54, 55] },
+      { name: 'Japón', flag: '🇯🇵', value: 38.0, china: false, trend: [40, 39, 39, 38, 38] },
+      { name: 'India', flag: '🇮🇳', value: 22.0, china: false, trend: [15, 17, 19, 21, 22] },
+      { name: 'Corea del Sur', flag: '🇰🇷', value: 12.0, china: false, trend: [10, 10.5, 11, 11.5, 12] },
+      { name: 'Italia', flag: '🇮🇹', value: 8.5, china: false, trend: [8.2, 8.3, 8.4, 8.4, 8.5] },
+      { name: 'Francia', flag: '🇫🇷', value: 6.0, china: false, trend: [5.8, 5.9, 5.9, 6.0, 6.0] },
+      { name: 'Alemania', flag: '🇩🇪', value: 5.5, china: false, trend: [5.4, 5.4, 5.5, 5.5, 5.5] }
+    ]
+  }
+};
+
+// Motocicletas — datos basados en OICA, IMMA (International Motorcycle Manufacturers
+// Association) y Motorcycle Industry Council. Volumen de unidades producidas al año.
+const MOTORCYCLES = {
+  production: {
+    title: 'Producción Mundial de Motocicletas',
+    short: 'Motocicletas',
+    unit: 'Millones de motocicletas producidas al año',
+    shortUnit: 'M',
+    brief: 'China es el <strong>mayor productor mundial de motocicletas</strong>, seguido de India. Pero lo decisivo es el saldo comercial: China exporta alrededor de 4,5 millones de unidades al año mientras India apenas rebasa las 800.000 — China fabrica motas para el mundo, India para su mercado interior.',
+    implication: 'Control de la cadena de suministro global de dos ruedas, clave para la logística de última milla en Asia y África.',
+    items: [
+      { name: 'China', flag: '🇨🇳', value: 27.0, china: true, trend: [22.5, 24.0, 25.4, 26.2, 27.0] },
+      { name: 'India', flag: '🇮🇳', value: 21.0, china: false, trend: [18.4, 19.2, 20.1, 20.6, 21.0] },
+      { name: 'Indonesia', flag: '🇮🇩', value: 7.5, china: false, trend: [6.2, 6.7, 7.0, 7.3, 7.5] },
+      { name: 'Japón', flag: '🇯🇵', value: 4.0, china: false, trend: [4.6, 4.4, 4.2, 4.1, 4.0] },
+      { name: 'Brasil', flag: '🇧🇷', value: 2.3, china: false, trend: [1.9, 2.0, 2.1, 2.2, 2.3] },
+      { name: 'Tailandia', flag: '🇹🇭', value: 1.7, china: false, trend: [1.4, 1.5, 1.6, 1.6, 1.7] },
+      { name: 'México', flag: '🇲🇽', value: 1.5, china: false, trend: [1.3, 1.4, 1.4, 1.5, 1.5] },
+      { name: 'Vietnam', flag: '🇻🇳', value: 1.3, china: false, trend: [0.9, 1.0, 1.1, 1.2, 1.3] }
     ]
   }
 };
@@ -109,23 +146,33 @@ const DATASETS = {
   ships: SHIPS,
   cars: CARS,
   drones: DRONES,
-  fiber: FIBER
+  fiber: FIBER,
+  motorcycles: MOTORCYCLES
 };
 
 const TABS = [
-  { id: 'steel', label: '🏭 Acero', metric: 'production' },
-  { id: 'ships', label: '🚢 Barcos', metric: 'tonnage' },
-  { id: 'cars', label: '🚗 Autos', metric: 'total' },
-  { id: 'drones', label: '🛸 Drones', metric: 'civilian' },
-  { id: 'fiber', label: '🔌 Fibra óptica', metric: 'production' }
+  { id: 'steel', label: 'Acero', icon: '⚙️', metric: 'production' },
+  { id: 'ships', label: 'Naval', icon: '🚢', metric: 'tonnage' },
+  { id: 'cars', label: 'Automotriz', icon: '🚗', metric: 'total' },
+  { id: 'drones', label: 'Drones', icon: '🛸', metric: 'civilian' },
+  { id: 'fiber', label: 'Fibra', icon: '🔌', metric: 'production' },
+  { id: 'motorcycles', label: 'Motos', icon: '🏍️', metric: 'production' }
 ];
 
-// ==========================================
-// FORMATO DE NÚMEROS (punto de miles + decimal coma)
-// ==========================================
+const CATEGORIES = {
+  steel: 'Materiales críticos',
+  ships: 'Capacidad industrial',
+  cars: 'Manufactura',
+  drones: 'Tecnología dual',
+  fiber: 'Infraestructura digital',
+  motorcycles: 'Movilidad de dos ruedas'
+};
+
+// ============================================================
+// FORMATO
+// ============================================================
 function formatNumber(value, maxDecimals = 2) {
   const num = Number(value);
-  // Si el número es entero, no mostrar decimales
   const decimals = Number.isInteger(num) ? 0 : maxDecimals;
   const fixed = num.toFixed(decimals);
   const [intPart, decPart] = fixed.split('.');
@@ -133,326 +180,411 @@ function formatNumber(value, maxDecimals = 2) {
   return decPart ? `${withThousands},${decPart}` : withThousands;
 }
 
-// ==========================================
-// TOOLTIP PERSONALIZADO
-// ==========================================
-function CustomTooltip({ active, payload, shortUnit, total }) {
-  if (!active || !payload || !payload.length) return null;
+function formatCompact(value) {
+  const num = Number(value);
+  // Billones (>1000) con sufijo M para coherencia con la unidad del dataset
+  if (num >= 1000) return formatNumber(num, 0);
+  if (num >= 100) return formatNumber(num, 0);
+  if (num >= 10) return formatNumber(num, 0);
+  return formatNumber(num, 1);
+}
 
+// ============================================================
+// TOOLTIP
+// ============================================================
+function IntelTooltip({ active, payload, shortUnit, total }) {
+  if (!active || !payload || !payload.length) return null;
   const item = payload[0].payload;
   const share = total > 0 ? ((item.value / total) * 100).toFixed(1) : '0';
   const isChina = item.china;
 
   return (
-    <div style={{
-      background: 'rgba(10, 10, 15, 0.97)',
-      border: `1px solid ${isChina ? '#FF003C' : '#00F0FF'}`,
-      borderRadius: '10px',
-      padding: '12px 16px',
-      boxShadow: `0 0 24px ${isChina ? 'rgba(255,0,60,0.35)' : 'rgba(0,240,255,0.25)'}`,
-      minWidth: '170px'
-    }}>
-      <div style={{
-        fontFamily: 'Orbitron, sans-serif',
-        fontSize: '0.85rem',
-        fontWeight: 700,
-        color: isChina ? '#FF003C' : '#00F0FF',
-        marginBottom: '8px',
-        borderBottom: '1px solid rgba(255,255,255,0.12)',
-        paddingBottom: '6px'
-      }}>
-        {item.name}
+    <div className="intel-tooltip" style={{ borderColor: isChina ? 'var(--china-red)' : 'var(--usa-cyan)' }}>
+      <div className="intel-tooltip-head" style={{ color: isChina ? 'var(--china-red)' : 'var(--usa-cyan)' }}>
+        <span className="intel-tooltip-rank">RANK {String(item.rank).padStart(2, '0')}</span>
+        <span>{item.flag} {item.name}</span>
       </div>
-
-      <div style={{
-        fontFamily: 'Orbitron, sans-serif',
-        fontSize: '1.9rem',
-        fontWeight: 800,
-        color: '#fff',
-        lineHeight: 1.1,
-        textShadow: isChina ? '0 0 14px rgba(255,0,60,0.7)' : '0 0 14px rgba(0,240,255,0.5)'
-      }}>
+      <div className="intel-tooltip-value">
         {formatNumber(item.value, 2)}
-        <span style={{ fontSize: '0.85rem', color: '#9ca3af', marginLeft: '4px', fontWeight: 600 }}>
-          {shortUnit}
-        </span>
+        <span className="intel-tooltip-unit">{shortUnit}</span>
       </div>
-
-      <div style={{ marginTop: '8px', fontSize: '0.75rem', color: '#9ca3af', fontFamily: 'Inter, sans-serif' }}>
-        <span style={{ color: '#fff', fontWeight: 600 }}>{share}%</span> del total de la muestra
+      <div className="intel-tooltip-foot">
+        <span>{share}% del total</span>
+        {isChina && <span className="intel-tooltip-tag">LÍDER</span>}
       </div>
     </div>
   );
 }
 
-// ==========================================
+// ============================================================
 // COMPONENTE PRINCIPAL
-// ==========================================
+// ============================================================
 export default function EstadisticasPage() {
   const [active, setActive] = useState('steel');
-  const [selected, setSelected] = useState(null); // índice de la barra tocada/clicada
+  const [selected, setSelected] = useState(null);
+  const [clock, setClock] = useState(new Date());
   const currentTab = TABS.find(t => t.id === active);
   const dataset = DATASETS[active][currentTab.metric];
 
-  // Cálculo de KPIs
-  const chinaValue = dataset.items.find(i => i.china).value;
-  const secondValue = [...dataset.items.filter(i => !i.china)]
-    .sort((a, b) => b.value - a.value)[0].value;
-  const total = dataset.items.reduce((a, b) => a + b.value, 0);
-  const share = Math.round((chinaValue / total) * 100);
-  const ratio = (chinaValue / secondValue).toFixed(1);
+  // Reloj de inteligencia
+  useEffect(() => {
+    const id = setInterval(() => setClock(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
 
-  // Etiquetas de valor sobre las barras (visibles siempre, más grandes al hover)
-  const labelData = useMemo(() => dataset.items.map(i => ({
-    ...i,
-    label: formatNumber(i.value, 2)
-  })), [dataset]);
+  // Reiniciar selección al cambiar de dataset
+  useEffect(() => { setSelected(null); }, [active]);
 
-  const selectedItem = selected !== null ? dataset.items[selected] : null;
+  const ranked = useMemo(
+    () => dataset.items
+      .map((it, i) => ({ ...it, rank: i + 1 }))
+      .sort((a, b) => b.value - a.value)
+      .map((it, i) => ({ ...it, rank: i + 1 })),
+    [dataset]
+  );
 
-  const axisStyle = {
-    stroke: '#888',
-    tick: { fill: '#888', fontSize: 11 }
-  };
+  const chinaItem = ranked.find(i => i.china);
+  const secondItem = ranked.find(i => !i.china);
+  const total = ranked.reduce((a, b) => a + b.value, 0);
+  const share = Math.round((chinaItem.value / total) * 100);
+  const ratio = (chinaItem.value / secondItem.value).toFixed(1);
+  const combined = ranked.filter(i => !i.china).reduce((a, b) => a + b.value, 0);
+  const vsCombined = (chinaItem.value / combined).toFixed(1);
+
+  const selectedItem = selected !== null ? ranked[selected] : null;
+
+  const axisStyle = { stroke: 'rgba(148,163,184,.35)', tick: { fill: 'rgba(148,163,184,.8)', fontSize: 11 } };
+
+  // Tendencia normalizada a índice base 100 (primer año = 100) para que ambas
+  // series sean comparables aunque las magnitudes sean muy distintas
+  const trendData = useMemo(() => {
+    const cBase = chinaItem.trend[0] || 1;
+    const rBase = secondItem.trend[0] || 1;
+    return chinaItem.trend.map((v, i) => ({
+      year: `20${20 + i}`,
+      china: Math.round((v / cBase) * 100),
+      runnerUp: Math.round((secondItem.trend[i] / rBase) * 100)
+    }));
+  }, [chinaItem, secondItem]);
 
   return (
-    <>
-      <header className="hero container">
-        <div className="badge">Datos Comparados 2024-2025</div>
-        <h2 className="hero-title">
-          <span className="text-red">CHINA</span>
-          <span className="vs-text">VS</span>
-          <span className="text-cyan">MUNDO</span>
-        </h2>
-        <p className="hero-subtitle">
-          La dominación industrial china medida en 5 sectores clave:
-          acero, construcción naval, automotriz, drones y fibra óptica.
-        </p>
-      </header>
+    <div className="intel-page">
+      {/* ============ HEADER ============ */}
+      <header className="intel-header container">
+        <div className="intel-header-top">
+          <div className="intel-stamp">
+            <span className="intel-stamp-dot" />
+            SITUATIONAL AWARENESS · {CATEGORIES[active].toUpperCase()}
+          </div>
+          <div className="intel-clock">
+            <span className="intel-clock-time">
+              {clock.toLocaleTimeString('es-ES', { hour12: false })}
+            </span>
+            <span className="intel-clock-date">
+              {clock.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase()}
+            </span>
+          </div>
+        </div>
 
-      <section className="section container">
-        {/* TABS */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          gap: '12px',
-          flexWrap: 'wrap',
-          marginBottom: '32px'
-        }}>
+        <h1 className="intel-title">
+          <span className="intel-title-cn">CHINA</span>
+          <span className="intel-title-sep">/</span>
+          <span className="intel-title-world">GLOBAL</span>
+        </h1>
+        <p className="intel-sub">
+          Índice de dominancia industrial por sector · Datos 2024–2025 · Fuentes: UNCTAD, World Steel Association,
+          OICA, IMMA, Drone Industry Insights, CRU International, OECD
+        </p>
+
+        {/* Selector de sector */}
+        <nav className="intel-tabs">
           {TABS.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActive(tab.id)}
-              style={{
-                padding: '12px 24px',
-                borderRadius: '999px',
-                border: `1px solid ${active === tab.id ? '#FF003C' : 'rgba(255,255,255,0.1)'}`,
-                background: active === tab.id ? '#FF003C' : 'transparent',
-                color: '#fff',
-                cursor: 'pointer',
-                fontFamily: 'Inter, sans-serif',
-                fontWeight: 600,
-                fontSize: '0.95rem',
-                transition: 'all 0.2s'
-              }}
+              className={`intel-tab ${active === tab.id ? 'intel-tab-active' : ''}`}
+              aria-pressed={active === tab.id}
             >
-              {tab.label}
+              <span className="intel-tab-icon">{tab.icon}</span>
+              <span className="intel-tab-label">{tab.label}</span>
+              <span className="intel-tab-index">0{TABS.findIndex(t => t.id === tab.id) + 1}</span>
             </button>
           ))}
+        </nav>
+      </header>
+
+      {/* ============ TARJETA PRINCIPAL ============ */}
+      <section className="intel-panel container">
+        <div className="intel-panel-head">
+          <div>
+            <div className="intel-panel-kicker">SECTOR · {CATEGORIES[active]}</div>
+            <h2 className="intel-panel-title">{dataset.title}</h2>
+          </div>
+          <div className="intel-panel-unit">
+            <span className="intel-panel-unit-label">UNIDAD</span>
+            <span className="intel-panel-unit-value">{dataset.unit}</span>
+          </div>
         </div>
 
-        {/* TARJETA DEL GRÁFICO */}
-        <div className="glass-card">
-          <h3 className="section-title red">{dataset.title}</h3>
-          <p style={{ color: '#9ca3af', fontSize: '0.9rem', textAlign: 'center', marginBottom: '20px' }}>
-            {dataset.unit}
-          </p>
-          <p style={{
-            color: '#6b7280',
-            fontSize: '0.72rem',
-            textAlign: 'center',
-            marginBottom: '12px',
-            fontFamily: 'Inter, sans-serif',
-            letterSpacing: '0.3px'
-          }}>
-            👆 Pasa el cursor o toca una barra para ver el detalle
-          </p>
-
-          <ResponsiveContainer width="100%" height={470}>
-            <BarChart
-              data={labelData}
-              margin={{ top: 46, right: 20, left: 0, bottom: 60 }}
-              barCategoryGap="18%"
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-              <XAxis
-                dataKey="name"
-                {...axisStyle}
-                angle={-25}
-                textAnchor="end"
-                interval={0}
-              />
-              <YAxis {...axisStyle} />
-              <Tooltip
-                cursor={{ fill: 'rgba(255, 255, 255, 0.06)' }}
-                content={<CustomTooltip shortUnit={dataset.shortUnit} total={total} />}
-                animationDuration={150}
-              />              <Bar
-                dataKey="value"
-                radius={[6, 6, 0, 0]}
-                animationDuration={1000}
-                maxBarSize={70}
-                onClick={(data, index) => setSelected(index === selected ? null : index)}
-                activeBar={{
-                  fill: '#FF003C',
-                  style: { filter: 'drop-shadow(0 0 12px rgba(255,0,60,0.8))' }
-                }}
+        <div className="intel-grid">
+          {/* ---- GRÁFICO PRINCIPAL ---- */}
+          <div className="intel-chart-wrap">
+            <ResponsiveContainer width="100%" height={480}>
+              <BarChart
+                data={ranked}
+                margin={{ top: 40, right: 24, left: 0, bottom: 64 }}
+                barCategoryGap="16%"
               >
-                {labelData.map((entry, i) => (
-                  <Cell
-                    key={i}
-                    fill={entry.china ? '#FF003C' : '#475569'}
-                  />
-                ))}
-                <LabelList
-                  dataKey="label"
-                  position="top"
-                  offset={12}
-                  content={({ x, y, width, index }) => {
-                    const entry = labelData[index];
-                    if (!entry) return null;
-                    return (
-                      <text
-                        x={x + width / 2}
-                        y={y - 10}
-                        textAnchor="middle"
-                        fill={entry.china ? '#FF5C7A' : '#E5E7EB'}
-                        fontSize={entry.china ? 18 : 13}
-                        fontWeight={800}
-                        fontFamily="Orbitron, sans-serif"
-                        style={{ textShadow: '0 0 8px rgba(0,0,0,0.95)' }}
-                      >
-                        {entry.label}
-                      </text>
-                    );
-                  }}
+                <defs>
+                  <linearGradient id="gradChina" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#FF2E5B" />
+                    <stop offset="55%" stopColor="#FF003C" />
+                    <stop offset="100%" stopColor="#A8002E" />
+                  </linearGradient>
+                  <linearGradient id="gradOther" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#64748B" />
+                    <stop offset="100%" stopColor="#334155" />
+                  </linearGradient>
+                  <filter id="glowChina" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="9" result="blur" />
+                    <feMerge>
+                      <feMergeNode in="blur" />
+                      <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                  </filter>
+                </defs>
+
+                <CartesianGrid strokeDasharray="2 6" stroke="rgba(148,163,184,.10)" vertical={false} />
+                <XAxis
+                  dataKey="name"
+                  {...axisStyle}
+                  angle={-28}
+                  textAnchor="end"
+                  interval={0}
+                  height={64}
+                  tick={{ fill: 'rgba(148,163,184,.8)', fontSize: 11 }}
                 />
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+                <YAxis {...axisStyle} width={52} />
+                <Tooltip
+                  cursor={{ fill: 'rgba(255,255,255,.04)' }}
+                  content={<IntelTooltip shortUnit={dataset.shortUnit} total={total} />}
+                  animationDuration={120}
+                />
+                <Bar
+                  dataKey="value"
+                  radius={[4, 4, 0, 0]}
+                  animationDuration={1100}
+                  animationEasing="ease-out"
+                  maxBarSize={64}
+                  onClick={(_, index) => setSelected(selected === index ? null : index)}
+                  activeBar={{ style: { filter: 'url(#glowChina)' } }}
+                >
+                  {ranked.map((entry, i) => (
+                    <Cell
+                      key={i}
+                      fill={entry.china ? 'url(#gradChina)' : 'url(#gradOther)'}
+                      filter={entry.china ? 'url(#glowChina)' : undefined}
+                      style={{ cursor: 'pointer' }}
+                    />
+                  ))}
+                  <LabelList
+                    dataKey="value"
+                    position="top"
+                    offset={14}
+                    content={({ x, y, width, index }) => {
+                      const e = ranked[index];
+                      if (!e) return null;
+                      return (
+                        <text
+                          x={x + width / 2}
+                          y={y - 10}
+                          textAnchor="middle"
+                          fill={e.china ? '#FF5C7A' : 'rgba(226,232,240,.85)'}
+                          fontSize={e.china ? 19 : 12}
+                          fontWeight={800}
+                          fontFamily="Orbitron, sans-serif"
+                          style={{ textShadow: '0 0 10px rgba(0,0,0,.95)' }}
+                        >
+                          {formatCompact(e.value)}
+                        </text>
+                      );
+                    }}
+                  />
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+            <div className="intel-chart-hint">INTERACTÚA CON LAS BARRAS PARA VER EL DESGLOSE</div>
+          </div>
 
-          {/* PANEL DE DETALLE (click / toque en una barra) */}
-          {selectedItem && (
-            <div style={{
-              marginTop: '20px',
-              padding: '18px 20px',
-              background: selectedItem.china ? 'rgba(255, 0, 60, 0.12)' : 'rgba(0, 240, 255, 0.07)',
-              border: `1px solid ${selectedItem.china ? '#FF003C' : '#00F0FF'}`,
-              borderRadius: '10px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              flexWrap: 'wrap',
-              gap: '16px'
-            }}>
-              <div>
-                <div style={{
-                  fontFamily: 'Orbitron, sans-serif',
-                  fontSize: '1rem',
-                  fontWeight: 700,
-                  color: selectedItem.china ? '#FF5C7A' : '#00F0FF',
-                  marginBottom: '4px'
-                }}>
-                  {selectedItem.name}
-                </div>
-                <div style={{ fontSize: '0.78rem', color: '#9ca3af', fontFamily: 'Inter, sans-serif' }}>
-                  {((selectedItem.value / total) * 100).toFixed(1)}% del total de la muestra
-                  {selectedItem.china && ' · líder mundial'}
+          {/* ---- PANEL LATERAL: MÉTRICAS ---- */}
+          <aside className="intel-side">
+            {/* Ratio vs resto del mundo */}
+            <div className="intel-metric intel-metric-hero">
+              <div className="intel-metric-label">VS. RESTO DEL MUNDO COMBINADO</div>
+              <div className="intel-metric-big">
+                {vsCombined}
+                <span className="intel-metric-suffix">×</span>
+              </div>
+              <div className="intel-metric-sub">
+                China produce <strong>{formatNumber(chinaItem.value, 1)}</strong> {dataset.shortUnit};
+                el resto del mundo junto, <strong>{formatNumber(combined, 1)}</strong>
+              </div>
+              <div className="intel-meter">
+                <div className="intel-meter-fill" style={{ width: `${share}%` }} />
+              </div>
+              <div className="intel-meter-labels">
+                <span>CHINA {share}%</span>
+                <span>RESTO {100 - share}%</span>
+              </div>
+            </div>
+
+            {/* Ratio vs #2 */}
+            <div className="intel-metric">
+              <div className="intel-metric-label">VENTAJA VS. SEGUNDO LUGAR</div>
+              <div className="intel-metric-row">
+                <div className="intel-metric-mid">{ratio}×</div>
+                <div className="intel-metric-context">
+                  <div className="intel-metric-context-row">
+                    <span className="intel-dot intel-dot-cn" /> {chinaItem.flag} {chinaItem.name}
+                    <strong>{formatNumber(chinaItem.value, 1)}</strong>
+                  </div>
+                  <div className="intel-metric-context-row">
+                    <span className="intel-dot intel-dot-other" /> {secondItem.flag} {secondItem.name}
+                    <strong>{formatNumber(secondItem.value, 1)}</strong>
+                  </div>
                 </div>
               </div>
-              <div style={{
-                fontFamily: 'Orbitron, sans-serif',
-                fontSize: '2.2rem',
-                fontWeight: 800,
-                color: '#fff',
-                lineHeight: 1,
-                textShadow: selectedItem.china
-                  ? '0 0 16px rgba(255,0,60,0.7)'
-                  : '0 0 16px rgba(0,240,255,0.5)'
-              }}>
-                {formatNumber(selectedItem.value, 2)}
-                <span style={{ fontSize: '0.9rem', color: '#9ca3af', marginLeft: '5px', fontWeight: 600 }}>
-                  {dataset.shortUnit}
-                </span>
+            </div>
+
+            {/* Posición de China */}
+            <div className="intel-metric">
+              <div className="intel-metric-label">POSICIÓN GLOBAL</div>
+              <div className="intel-rank">
+                <span className="intel-rank-num">01</span>
+                <div>
+                  <div className="intel-rank-name">{chinaItem.flag} {chinaItem.name}</div>
+                  <div className="intel-rank-sub">{share}% de la cuota mundial</div>
+                </div>
               </div>
             </div>
-          )}
+          </aside>
+        </div>
 
-          {/* KPIs */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-            gap: '12px',
-            marginTop: '24px'
-          }}>
-            <div style={kpiStyle}>
-              <div style={kpiValueStyle}>{share}%</div>
-              <div style={kpiLabelStyle}>del total mundial</div>
+        {/* ============ DETALLE SELECCIONADO ============ */}
+        {selectedItem && (
+          <div className="intel-detail" style={{ borderColor: selectedItem.china ? 'var(--china-red)' : 'var(--usa-cyan)' }}>
+            <div className="intel-detail-left">
+              <div className="intel-detail-rank">RANK {String(selectedItem.rank).padStart(2, '0')}</div>
+              <div className="intel-detail-name">{selectedItem.flag} {selectedItem.name}</div>
+              <div className="intel-detail-share">
+                {((selectedItem.value / total) * 100).toFixed(1)}% del total de la muestra
+                {selectedItem.china && ' · líder mundial'}
+              </div>
             </div>
-            <div style={kpiStyle}>
-              <div style={kpiValueStyle}>{ratio}×</div>
-              <div style={kpiLabelStyle}>vs. #2 ({formatNumber(secondValue, 1)})</div>
+            <div className="intel-detail-value" style={{ color: selectedItem.china ? '#FF5C7A' : '#00F0FF' }}>
+              {formatNumber(selectedItem.value, 2)}
+              <span className="intel-detail-unit">{dataset.shortUnit}</span>
             </div>
-            <div style={kpiStyle}>
-              <div style={kpiValueStyle}>{formatNumber(chinaValue, 1)}</div>
-              <div style={kpiLabelStyle}>solo China</div>
+          </div>
+        )}
+
+        {/* ============ ANÁLISIS + TENDENCIA ============ */}
+        <div className="intel-grid intel-grid-bottom">
+          <div className="intel-brief">
+            <div className="intel-brief-head">
+              <span className="intel-brief-tag">LECTURA</span>
+              <span className="intel-brief-title">Implicación estratégica</span>
+            </div>
+            <p
+              className="intel-brief-text"
+              dangerouslySetInnerHTML={{ __html: dataset.brief }}
+            />
+            <div className="intel-implication">
+              <span className="intel-implication-icon">▸</span>
+              <span>{dataset.implication}</span>
             </div>
           </div>
 
-          {/* RESUMEN */}
-          <div
-            style={{
-              marginTop: '20px',
-              padding: '16px',
-              background: 'rgba(255, 0, 60, 0.08)',
-              borderLeft: '3px solid #FF003C',
-              borderRadius: '8px',
-              color: '#cbd5e1',
-              fontSize: '0.9rem',
-              lineHeight: 1.6
-            }}
-            dangerouslySetInnerHTML={{ __html: dataset.summary }}
-          />
+          <div className="intel-trend">
+            <div className="intel-brief-head">
+              <span className="intel-brief-tag">TENDENCIA</span>
+              <span className="intel-brief-title">Desempeño relativo · índice base 100 (2020)</span>
+            </div>
+            <ResponsiveContainer width="100%" height={168}>
+              <AreaChart data={trendData} margin={{ top: 12, right: 8, left: 8, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="areaChina" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="rgba(255,0,60,.45)" />
+                    <stop offset="100%" stopColor="rgba(255,0,60,0)" />
+                  </linearGradient>
+                  <linearGradient id="areaOther" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="rgba(0,240,255,.30)" />
+                    <stop offset="100%" stopColor="rgba(0,240,255,0)" />
+                  </linearGradient>
+                </defs>
+                <XAxis
+                  dataKey="year"
+                  stroke="rgba(148,163,184,.35)"
+                  tick={{ fill: 'rgba(148,163,184,.7)', fontSize: 10 }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  hide
+                  domain={['dataMin - 8', 'dataMax + 8']}
+                />
+                <Tooltip
+                  contentStyle={{
+                    background: 'rgba(6,8,14,.97)',
+                    border: '1px solid rgba(148,163,184,.25)',
+                    borderRadius: 8,
+                    fontSize: 12,
+                    fontFamily: 'Inter, sans-serif'
+                  }}
+                  labelStyle={{ color: '#fff', fontWeight: 700, marginBottom: 4 }}
+                  formatter={(value, name) => [
+                    `${value} (índice)`,
+                    name === 'china' ? `${chinaItem.flag} ${chinaItem.name}` : `${secondItem.flag} ${secondItem.name}`
+                  ]}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="china"
+                  name={`${chinaItem.name}`}
+                  stroke="#FF003C"
+                  strokeWidth={2.5}
+                  fill="url(#areaChina)"
+                  dot={{ r: 2.5, fill: '#FF003C', strokeWidth: 0 }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="runnerUp"
+                  name={secondItem.name}
+                  stroke="#00F0FF"
+                  strokeWidth={1.8}
+                  strokeDasharray="4 3"
+                  fill="url(#areaOther)"
+                  dot={{ r: 2, fill: '#00F0FF', strokeWidth: 0 }}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+            <div className="intel-trend-legend">
+              <span><span className="intel-dot intel-dot-cn" /> {chinaItem.name}</span>
+              <span><span className="intel-dot intel-dot-other" /> {secondItem.name}</span>
+              <span className="intel-trend-note">Base 100 = 2020</span>
+            </div>
+          </div>
         </div>
-
-        <p style={{ textAlign: 'center', color: '#6b7280', fontSize: '0.8rem', marginTop: '20px' }}>
-          Fuentes: UNCTAD, World Steel Association, OICA, Drone Industry Insights, CRU International, YOFC, Corning 10-K, OECD.
-          Cifras redondeadas con fines comparativos.
-        </p>
       </section>
-    </>
+
+      {/* ============ FOOTER ============ */}
+      <footer className="intel-footer container">
+        <div className="intel-footer-rule" />
+        <div className="intel-footer-row">
+          <span>GEOPOLITICS.DATA · PANEL DE ESTADÍSTICAS COMPARADAS</span>
+          <span className="intel-footer-tag">DATOS VERIFICADOS · UNCTAD / OECD / WORLDSTEEL / OICA / IMMA</span>
+        </div>
+      </footer>
+    </div>
   );
 }
-
-const kpiStyle = {
-  background: 'rgba(255, 0, 60, 0.1)',
-  border: '1px solid rgba(255, 0, 60, 0.4)',
-  borderRadius: '10px',
-  padding: '14px',
-  textAlign: 'center'
-};
-
-const kpiValueStyle = {
-  fontSize: '1.5rem',
-  fontWeight: 800,
-  color: '#00F0FF',
-  fontFamily: 'Orbitron, sans-serif'
-};
-
-const kpiLabelStyle = {
-  fontSize: '0.75rem',
-  color: '#9ca3af',
-  textTransform: 'uppercase',
-  letterSpacing: '0.5px',
-  marginTop: '4px'
-};
