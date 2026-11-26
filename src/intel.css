@@ -151,8 +151,8 @@
    ============================================================ */
 .intel-tabs {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(134px, 1fr));
+  gap: 8px;
   margin-bottom: 28px;
 }
 
@@ -160,8 +160,8 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 13px 13px;
+  gap: 8px;
+  padding: 12px 10px;
   border: 1px solid var(--intel-line);
   border-radius: 10px;
   background: rgba(12, 15, 24, 0.55);
@@ -200,25 +200,26 @@
 
 .intel-tab-active::before { transform: scaleY(1); }
 
-.intel-tab-icon { font-size: 1.25rem; line-height: 1; }
+.intel-tab-icon { font-size: 1.1rem; line-height: 1; flex-shrink: 0; }
 
 .intel-tab-label {
   flex: 1;
   font-family: 'Orbitron', sans-serif;
-  font-size: 0.76rem;
+  font-size: 0.68rem;
   font-weight: 700;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.01em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .intel-tab-index {
   font-family: 'Orbitron', sans-serif;
-  font-size: 0.58rem;
+  font-size: 0.54rem;
   font-weight: 700;
   color: var(--intel-dim);
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   flex-shrink: 0;
 }
 

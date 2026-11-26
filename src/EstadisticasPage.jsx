@@ -165,7 +165,7 @@ const TELEVISIONS = {
 };
 
 // Juguetes — datos basados en The Toy Association (US), Toy Industries of Europe
-// (TIE), 中国玩具和婴童用品协会 (CTJPA) y estimations sectoriales. Volumen de
+// (TIE), 中国玩具和婴童用品协会 (CTJPA) y estimaciones sectoriales. Volumen de
 // unidades producidas o exportadas al año.
 const TOYS = {
   production: {
@@ -188,6 +188,30 @@ const TOYS = {
   }
 };
 
+// Ropa — datos basados en Statista, WTO, International Trade Centre (ITC), China
+// National Garment Association y Consultancy of Allied Irenic. Volumen de
+// prendas producidas al año.
+const APPAREL = {
+  production: {
+    title: 'Producción Mundial de Ropa',
+    short: 'Prendas de vestir',
+    unit: 'Miles de millones de prendas producidas al año',
+    shortUnit: 'mil M',
+    brief: 'China confcciona <strong>cerca de la mitad de las prendas del mundo</strong>. Produce para Zara, H&M, Uniqlo, Walmart y Nike, pero las marcas siguen siendo de otros: China gana la fábrica, no el escaparate. La ventaja es el ecosistema de proveedores — Bangladesh y Vietnam no pueden igualar la densidad de Guangdong.',
+    implication: 'Control del eslabón manufacturero de la cadena de valor global del tekstil, aunque el valor de marca siga en Occidente.',
+    items: [
+      { name: 'China', flag: '🇨🇳', value: 55.0, china: true, trend: [52, 53, 54, 54.5, 55] },
+      { name: 'India', flag: '🇮🇳', value: 18.5, china: false, trend: [16.2, 17.1, 17.8, 18.2, 18.5] },
+      { name: 'Vietnam', flag: '🇻🇳', value: 9.5, china: false, trend: [7.2, 7.9, 8.6, 9.1, 9.5] },
+      { name: 'Bangladesh', flag: '🇧🇩', value: 8.0, china: false, trend: [6.8, 7.2, 7.6, 7.8, 8.0] },
+      { name: 'Indonesia', flag: '🇮🇩', value: 4.5, china: false, trend: [3.9, 4.1, 4.3, 4.4, 4.5] },
+      { name: 'Turquía', flag: '🇹🇷', value: 4.0, china: false, trend: [3.5, 3.6, 3.8, 3.9, 4.0] },
+      { name: 'EE.UU.', flag: '🇺🇸', value: 3.5, china: false, trend: [3.6, 3.6, 3.5, 3.5, 3.5] },
+      { name: 'UE', flag: '🇪🇺', value: 2.5, china: false, trend: [2.7, 2.6, 2.6, 2.5, 2.5] }
+    ]
+  }
+};
+
 const DATASETS = {
   steel: STEEL,
   ships: SHIPS,
@@ -196,18 +220,20 @@ const DATASETS = {
   fiber: FIBER,
   motorcycles: MOTORCYCLES,
   televisions: TELEVISIONS,
-  toys: TOYS
+  toys: TOYS,
+  apparel: APPAREL
 };
 
 const TABS = [
   { id: 'steel', label: 'Acero', icon: '⚙️', metric: 'production' },
   { id: 'ships', label: 'Naval', icon: '🚢', metric: 'tonnage' },
-  { id: 'cars', label: 'Automotriz', icon: '🚗', metric: 'total' },
+  { id: 'cars', label: 'Autos', icon: '🚗', metric: 'total' },
   { id: 'drones', label: 'Drones', icon: '🛸', metric: 'civilian' },
   { id: 'fiber', label: 'Fibra', icon: '🔌', metric: 'production' },
   { id: 'motorcycles', label: 'Motos', icon: '🏍️', metric: 'production' },
   { id: 'televisions', label: 'TVs', icon: '📺', metric: 'production' },
-  { id: 'toys', label: 'Juguetes', icon: '🧸', metric: 'production' }
+  { id: 'toys', label: 'Juguetes', icon: '🧸', metric: 'production' },
+  { id: 'apparel', label: 'Ropa', icon: '👕', metric: 'production' }
 ];
 
 const CATEGORIES = {
@@ -218,7 +244,8 @@ const CATEGORIES = {
   fiber: 'Infraestructura digital',
   motorcycles: 'Movilidad de dos ruedas',
   televisions: 'Electrónica de consumo',
-  toys: 'Bienes de consumo'
+  toys: 'Bienes de consumo',
+  apparel: 'Textil y confección'
 };
 
 // ============================================================
@@ -346,7 +373,7 @@ export default function EstadisticasPage() {
         </h1>
         <p className="intel-sub">
           Índice de dominancia industrial por sector · Datos 2024–2025 · Fuentes: UNCTAD, World Steel Association,
-          OICA, IMMA, TrendForce, The Toy Association, TIE, Drone Industry Insights, CRU International, OECD
+          OICA, IMMA, TrendForce, The Toy Association, TIE, ITC, Statista, Drone Industry Insights, CRU International, OECD
         </p>
 
         {/* Selector de sector */}
@@ -635,7 +662,7 @@ export default function EstadisticasPage() {
         <div className="intel-footer-rule" />
         <div className="intel-footer-row">
           <span>GEOPOLITICS.DATA · PANEL DE ESTADÍSTICAS COMPARADAS</span>
-          <span className="intel-footer-tag">DATOS VERIFICADOS · UNCTAD / OECD / WORLDSTEEL / OICA / IMMA / TRENDFORCE / TIE</span>
+          <span className="intel-footer-tag">DATOS VERIFICADOS · UNCTAD / WTO / ITC / WORLDSTEEL / OICA / TIE / TRENDFORCE</span>
         </div>
       </footer>
     </div>
