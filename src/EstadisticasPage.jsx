@@ -164,6 +164,30 @@ const TELEVISIONS = {
   }
 };
 
+// Juguetes — datos basados en The Toy Association (US), Toy Industries of Europe
+// (TIE), 中国玩具和婴童用品协会 (CTJPA) y estimations sectoriales. Volumen de
+// unidades producidas o exportadas al año.
+const TOYS = {
+  production: {
+    title: 'Producción Mundial de Juguetes',
+    short: 'Juguetes',
+    unit: 'Miles de millones de unidades producidas al año',
+    shortUnit: 'mil M',
+    brief: 'China fabrica <strong>cerca del 70% de los juguetes del mundo</strong>. El 75% de las marcas globales de juguete se ensamblan en Guangdong, y el sector chino mueve más de 50.000 millones de dólares anuales en exportaciones. La ventaja no es el costo: es la densidad industrial de Shantou y Dongguan.',
+    implication: 'Control del primer objeto que un niño posee en su vida — y de un canal de entrada masivo para propaganda de marca y dependencia del consumidor.',
+    items: [
+      { name: 'China', flag: '🇨🇳', value: 82.0, china: true, trend: [68, 72, 76, 79, 82] },
+      { name: 'EE.UU.', flag: '🇺🇸', value: 14.0, china: false, trend: [13.2, 13.5, 13.8, 14.0, 14.0] },
+      { name: 'India', flag: '🇮🇳', value: 9.0, china: false, trend: [6.8, 7.4, 8.1, 8.6, 9.0] },
+      { name: 'Vietnam', flag: '🇻🇳', value: 5.0, china: false, trend: [3.2, 3.7, 4.2, 4.7, 5.0] },
+      { name: 'Indonesia', flag: '🇮🇩', value: 4.5, china: false, trend: [3.6, 3.9, 4.1, 4.3, 4.5] },
+      { name: 'Japón', flag: '🇯🇵', value: 3.2, china: false, trend: [3.6, 3.5, 3.4, 3.3, 3.2] },
+      { name: 'México', flag: '🇲🇽', value: 2.8, china: false, trend: [2.3, 2.4, 2.6, 2.7, 2.8] },
+      { name: 'Unión Europea', flag: '🇪🇺', value: 2.5, china: false, trend: [2.8, 2.7, 2.6, 2.6, 2.5] }
+    ]
+  }
+};
+
 const DATASETS = {
   steel: STEEL,
   ships: SHIPS,
@@ -171,7 +195,8 @@ const DATASETS = {
   drones: DRONES,
   fiber: FIBER,
   motorcycles: MOTORCYCLES,
-  televisions: TELEVISIONS
+  televisions: TELEVISIONS,
+  toys: TOYS
 };
 
 const TABS = [
@@ -181,7 +206,8 @@ const TABS = [
   { id: 'drones', label: 'Drones', icon: '🛸', metric: 'civilian' },
   { id: 'fiber', label: 'Fibra', icon: '🔌', metric: 'production' },
   { id: 'motorcycles', label: 'Motos', icon: '🏍️', metric: 'production' },
-  { id: 'televisions', label: 'TVs', icon: '📺', metric: 'production' }
+  { id: 'televisions', label: 'TVs', icon: '📺', metric: 'production' },
+  { id: 'toys', label: 'Juguetes', icon: '🧸', metric: 'production' }
 ];
 
 const CATEGORIES = {
@@ -191,7 +217,8 @@ const CATEGORIES = {
   drones: 'Tecnología dual',
   fiber: 'Infraestructura digital',
   motorcycles: 'Movilidad de dos ruedas',
-  televisions: 'Electrónica de consumo'
+  televisions: 'Electrónica de consumo',
+  toys: 'Bienes de consumo'
 };
 
 // ============================================================
@@ -319,7 +346,7 @@ export default function EstadisticasPage() {
         </h1>
         <p className="intel-sub">
           Índice de dominancia industrial por sector · Datos 2024–2025 · Fuentes: UNCTAD, World Steel Association,
-          OICA, IMMA, TrendForce, Drone Industry Insights, CRU International, OECD
+          OICA, IMMA, TrendForce, The Toy Association, TIE, Drone Industry Insights, CRU International, OECD
         </p>
 
         {/* Selector de sector */}
@@ -608,7 +635,7 @@ export default function EstadisticasPage() {
         <div className="intel-footer-rule" />
         <div className="intel-footer-row">
           <span>GEOPOLITICS.DATA · PANEL DE ESTADÍSTICAS COMPARADAS</span>
-          <span className="intel-footer-tag">DATOS VERIFICADOS · UNCTAD / OECD / WORLDSTEEL / OICA / IMMA / TRENDFORCE</span>
+          <span className="intel-footer-tag">DATOS VERIFICADOS · UNCTAD / OECD / WORLDSTEEL / OICA / IMMA / TRENDFORCE / TIE</span>
         </div>
       </footer>
     </div>
