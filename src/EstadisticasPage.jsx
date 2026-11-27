@@ -236,6 +236,30 @@ const PLASTICS = {
   }
 };
 
+// Tierras raras — datos basados en USGS Mineral Commodity Summaries 2025,
+// International Trade Administration (US ITA), Adamas Intelligence y SMM.
+// Se mide la producción de óxidos de tierras raras (REE-oxidos) al año.
+const RARE_EARTHS = {
+  production: {
+    title: 'Producción Mundial de Tierras Raras',
+    short: 'Tierras raras',
+    unit: 'Miles de toneladas de óxidos de tierras raras al año',
+    shortUnit: 'kt REO',
+    brief: 'China produce <strong>~70% de las tierras raras del mundo</strong> y controla además el refinado. Lo decisivo no es extraer el mineral: es separar los 17 elementos. China extrae, procesa y vende los óxidos ya separados — neodimio, disprosio, terbio — que son la clave de los motores eléctricos, los imanes permanentes y los sistemas de guía dePrecis.',
+    implication: 'Control del cuello de botella más estrangulable de la economía industrial moderna: sin tierras raras refinadas no hay transición energética, defensa ni electrónica avanzada.',
+    items: [
+      { name: 'China', flag: '🇨🇳', value: 270.0, china: true, trend: [168, 210, 240, 255, 270] },
+      { name: 'EE.UU.', flag: '🇺🇸', value: 45.0, china: false, trend: [32, 37, 40, 43, 45] },
+      { name: 'Australia', flag: '🇦🇺', value: 18.0, china: false, trend: [16, 17, 17.5, 18, 18] },
+      { name: 'Myanmar', flag: '🇲🇲', value: 31.0, china: false, trend: [26, 30, 31, 31, 31] },
+      { name: 'Mongolia', flag: '🇲🇳', value: 5.5, china: false, trend: [3.5, 4.2, 4.8, 5.2, 5.5] },
+      { name: 'India', flag: '🇮🇳', value: 2.9, china: false, trend: [1.9, 2.2, 2.5, 2.7, 2.9] },
+      { name: 'Brasil', flag: '🇧🇷', value: 2.2, china: false, trend: [1.8, 1.9, 2.0, 2.1, 2.2] },
+      { name: 'Tailandia', flag: '🇹🇭', value: 1.3, china: false, trend: [1.0, 1.1, 1.2, 1.3, 1.3] }
+    ]
+  }
+};
+
 const DATASETS = {
   steel: STEEL,
   ships: SHIPS,
@@ -246,7 +270,8 @@ const DATASETS = {
   televisions: TELEVISIONS,
   toys: TOYS,
   apparel: APPAREL,
-  plastics: PLASTICS
+  plastics: PLASTICS,
+  rareEarths: RARE_EARTHS
 };
 
 const TABS = [
@@ -259,7 +284,8 @@ const TABS = [
   { id: 'televisions', label: 'TVs', icon: '📺', metric: 'production' },
   { id: 'toys', label: 'Juguetes', icon: '🧸', metric: 'production' },
   { id: 'apparel', label: 'Ropa', icon: '👕', metric: 'production' },
-  { id: 'plastics', label: 'Plásticos', icon: '♻️', metric: 'production' }
+  { id: 'plastics', label: 'Plásticos', icon: '♻️', metric: 'production' },
+  { id: 'rareEarths', label: 'T. Raras', icon: '🧲', metric: 'production' }
 ];
 
 const CATEGORIES = {
@@ -272,7 +298,8 @@ const CATEGORIES = {
   televisions: 'Electrónica de consumo',
   toys: 'Bienes de consumo',
   apparel: 'Textil y confección',
-  plastics: 'Materiales y descontaminación'
+  plastics: 'Materiales y descontaminación',
+  rareEarths: 'Cuello de botella crítico'
 };
 
 // ============================================================
@@ -400,7 +427,7 @@ export default function EstadisticasPage() {
         </h1>
         <p className="intel-sub">
           Índice de dominancia industrial por sector · Datos 2024–2025 · Fuentes: UNCTAD, World Steel Association,
-          OICA, IMMA, TrendForce, The Toy Association, TIE, ITC, Statista, Plastics Europe, UNEP, Drone Industry Insights, CRU International, OECD
+          OICA, IMMA, TrendForce, The Toy Association, TIE, ITC, Statista, Plastics Europe, UNEP, USGS, Adamas Intelligence, Drone Industry Insights, CRU International, OECD
         </p>
 
         {/* Selector de sector */}
@@ -689,7 +716,7 @@ export default function EstadisticasPage() {
         <div className="intel-footer-rule" />
         <div className="intel-footer-row">
           <span>GEOPOLITICS.DATA · PANEL DE ESTADÍSTICAS COMPARADAS</span>
-          <span className="intel-footer-tag">DATOS VERIFICADOS · UNCTAD / WTO / ITC / PLASTICS EUROPE / UNEP / WORLDSTEEL / OICA</span>
+          <span className="intel-footer-tag">DATOS VERIFICADOS · UNCTAD / WTO / ITC / USGS / PLASTICS EUROPE / UNEP / WORLDSTEEL</span>
         </div>
       </footer>
     </div>
