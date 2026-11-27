@@ -151,7 +151,7 @@
    ============================================================ */
 .intel-tabs {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(134px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(142px, 1fr));
   gap: 8px;
   margin-bottom: 28px;
 }
@@ -205,9 +205,9 @@
 .intel-tab-label {
   flex: 1;
   font-family: 'Orbitron', sans-serif;
-  font-size: 0.68rem;
+  font-size: 0.66rem;
   font-weight: 700;
-  letter-spacing: 0.01em;
+  letter-spacing: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

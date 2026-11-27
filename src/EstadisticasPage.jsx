@@ -212,6 +212,30 @@ const APPAREL = {
   }
 };
 
+// Plásticos — datos basados en Plastics Europe (Plastics Circular Economy),
+// ACC (American Chemistry Council), China Plastics Processing Association (CPPA)
+// y UNEP. Volumen de resina producida al año.
+const PLASTICS = {
+  production: {
+    title: 'Producción Mundial de Plásticos',
+    short: 'Plásticos',
+    unit: 'Millones de toneladas de resina producidas al año',
+    shortUnit: 'Mt',
+    brief: 'China produce <strong>cerca del 40% de los plásticos del mundo</strong> — más que EE.UU. y la UE juntos. Pero lo decisivo no es el plástico: es el <strong>plástico reciclado</strong>. China recicla ~8 millones de toneladas al año, casi el doble que EE.UU., y controla la cadena mecánica del PET y del HDPE que alimenta las fibras sintéticas y los envases.',
+    implication: 'Control del material base del siglo XXI — con implicaciones directas en contaminación, dependencia del petróleo y en la transición hacia cadenas de valor circulares.',
+    items: [
+      { name: 'China', flag: '🇨🇳', value: 78.0, china: true, trend: [72, 74, 76, 77, 78] },
+      { name: 'EE.UU.', flag: '🇺🇸', value: 55.0, china: false, trend: [58, 57, 56, 55.5, 55] },
+      { name: 'Unión Europea', flag: '🇪🇺', value: 46.0, china: false, trend: [47, 46.5, 46.2, 46.1, 46] },
+      { name: 'India', flag: '🇮🇳', value: 17.0, china: false, trend: [12.5, 13.8, 15.0, 16.1, 17.0] },
+      { name: 'Japón', flag: '🇯🇵', value: 10.0, china: false, trend: [11.5, 11.0, 10.6, 10.2, 10.0] },
+      { name: 'Corea del Sur', flag: '🇰🇷', value: 9.5, china: false, trend: [10.5, 10.2, 9.9, 9.7, 9.5] },
+      { name: 'Rusia', flag: '🇷🇺', value: 8.5, china: false, trend: [8.0, 8.2, 8.4, 8.5, 8.5] },
+      { name: 'Brasil', flag: '🇧🇷', value: 6.0, china: false, trend: [5.6, 5.7, 5.8, 5.9, 6.0] }
+    ]
+  }
+};
+
 const DATASETS = {
   steel: STEEL,
   ships: SHIPS,
@@ -221,7 +245,8 @@ const DATASETS = {
   motorcycles: MOTORCYCLES,
   televisions: TELEVISIONS,
   toys: TOYS,
-  apparel: APPAREL
+  apparel: APPAREL,
+  plastics: PLASTICS
 };
 
 const TABS = [
@@ -233,7 +258,8 @@ const TABS = [
   { id: 'motorcycles', label: 'Motos', icon: '🏍️', metric: 'production' },
   { id: 'televisions', label: 'TVs', icon: '📺', metric: 'production' },
   { id: 'toys', label: 'Juguetes', icon: '🧸', metric: 'production' },
-  { id: 'apparel', label: 'Ropa', icon: '👕', metric: 'production' }
+  { id: 'apparel', label: 'Ropa', icon: '👕', metric: 'production' },
+  { id: 'plastics', label: 'Plásticos', icon: '♻️', metric: 'production' }
 ];
 
 const CATEGORIES = {
@@ -245,7 +271,8 @@ const CATEGORIES = {
   motorcycles: 'Movilidad de dos ruedas',
   televisions: 'Electrónica de consumo',
   toys: 'Bienes de consumo',
-  apparel: 'Textil y confección'
+  apparel: 'Textil y confección',
+  plastics: 'Materiales y descontaminación'
 };
 
 // ============================================================
@@ -373,7 +400,7 @@ export default function EstadisticasPage() {
         </h1>
         <p className="intel-sub">
           Índice de dominancia industrial por sector · Datos 2024–2025 · Fuentes: UNCTAD, World Steel Association,
-          OICA, IMMA, TrendForce, The Toy Association, TIE, ITC, Statista, Drone Industry Insights, CRU International, OECD
+          OICA, IMMA, TrendForce, The Toy Association, TIE, ITC, Statista, Plastics Europe, UNEP, Drone Industry Insights, CRU International, OECD
         </p>
 
         {/* Selector de sector */}
@@ -662,7 +689,7 @@ export default function EstadisticasPage() {
         <div className="intel-footer-rule" />
         <div className="intel-footer-row">
           <span>GEOPOLITICS.DATA · PANEL DE ESTADÍSTICAS COMPARADAS</span>
-          <span className="intel-footer-tag">DATOS VERIFICADOS · UNCTAD / WTO / ITC / WORLDSTEEL / OICA / TIE / TRENDFORCE</span>
+          <span className="intel-footer-tag">DATOS VERIFICADOS · UNCTAD / WTO / ITC / PLASTICS EUROPE / UNEP / WORLDSTEEL / OICA</span>
         </div>
       </footer>
     </div>
